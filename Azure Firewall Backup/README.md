@@ -30,4 +30,5 @@
 
 ## NOTES
 ### AUTHOR: Francesco Molfese
+### MORE INFO: https://francescomolfese.it/en/2019/08/azure-firewall-automazione-per-gestirne-il-backup/
 ### LASTEDIT: Jul 10, 2019 
