@@ -1,11 +1,9 @@
 <#
 .SYNOPSIS
 	This Azure Automation runbook automates Azure Firewall backup to Blob storage and deletes old backups from blob storage. 
-
 .DESCRIPTION
 	You should use this Runbook if you want manage Azure Firewall backups in Blob storage. 
 	This is a PowerShell runbook.
-
 .PARAMETER ResourceGroupName
 	Specifies the name of the resource group where the Azure Firewall is located
 	
@@ -14,24 +12,19 @@
 	
 .PARAMETER StorageAccountName
 	Specifies the name of the storage account where backup file will be uploaded
-
 .PARAMETER StorageKey
 	Specifies the storage key of the storage account
-
 .PARAMETER BlobContainerName
 	Specifies the container name of the storage account where backup file will be uploaded. Container will be created if it does not exist.
-
 .PARAMETER RetentionDays
 	Specifies the number of days how long backups are kept in blob storage. Script will remove all older files from container. 
 	For this reason dedicated container must be only used for this script.
-
 .OUTPUTS
 	Human-readable informational and error messages produced during the job. Not intended to be consumed by another runbook.
-
 .NOTES
     AUTHOR: Francesco Molfese
-    LASTEDIT: Jul 10, 2019 
-
+    LASTEDIT: Sep 09, 2021 
+    VERSION: 2.0
 #>
 
 param(
@@ -79,10 +72,10 @@ function Login() {
 
 function Create-Blob-Container([string]$blobContainerName, $storageContext) {
 	Write-Verbose "Checking if blob container '$blobContainerName' already exists" -Verbose
-	if (Get-AzureStorageContainer -ErrorAction "Stop" -Context $storageContext | Where-Object { $_.Name -eq $blobContainerName }) {
+	if (Get-AzStorageContainer -ErrorAction "Stop" -Context $storageContext | Where-Object { $_.Name -eq $blobContainerName }) {
 		Write-Verbose "Container '$blobContainerName' already exists" -Verbose
 	} else {
-		New-AzureStorageContainer -ErrorAction "Stop" -Name $blobContainerName -Permission Off -Context $storageContext
+		New-AzStorageContainer -ErrorAction "Stop" -Name $blobContainerName -Permission Off -Context $storageContext
 		Write-Verbose "Container '$blobContainerName' created" -Verbose
 	}
 }
@@ -97,23 +90,23 @@ function Export-To-Blob-Storage([string]$resourceGroupName, [string]$AzureFirewa
 
     Write-Output "Creating request to copy Azure Firewall configuration"
     $blobname = $BackupFilename
-    $output = Set-AzureStorageBlobContent -File $BackupFilePath -Blob $blobname -Container $blobContainerName -Context $storageContext -Force -ErrorAction SilentlyContinue
+    $output = Set-AzStorageBlobContent -File $BackupFilePath -Blob $blobname -Container $blobContainerName -Context $storageContext -Force -ErrorAction SilentlyContinue
 
 }
 
 function Delete-Old-Backups([int]$retentionDays, [string]$blobContainerName, $storageContext) {
 	Write-Output "Removing backups older than '$retentionDays' days from blob: '$blobContainerName'"
 	$isOldDate = [DateTime]::UtcNow.AddDays(-$retentionDays)
-	$blobs = Get-AzureStorageBlob -Container $blobContainerName -Context $storageContext
+	$blobs = Get-AzStorageBlob -Container $blobContainerName -Context $storageContext
 	foreach ($blob in ($blobs | Where-Object { $_.LastModified.UtcDateTime -lt $isOldDate -and $_.BlobType -eq "BlockBlob" })) {
 		Write-Verbose ("Removing blob: " + $blob.Name) -Verbose
-		Remove-AzureStorageBlob -Blob $blob.Name -Container $blobContainerName -Context $storageContext
+		Remove-AzStorageBlob -Blob $blob.Name -Container $blobContainerName -Context $storageContext
 	}
 }
 
 Write-Verbose "Starting database backup" -Verbose
 
-$StorageContext = New-AzureStorageContext -StorageAccountName $storageAccountName -StorageAccountKey $storageKey
+$StorageContext = New-AzStorageContext -StorageAccountName $storageAccountName -StorageAccountKey $storageKey
 
 Login
 Import-Module Az.Network
