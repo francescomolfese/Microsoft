@@ -3,6 +3,7 @@
 
 ## DESCRIPTION
 	You should use this Runbook if you want manage Azure Firewall backups in Blob storage. 
+	This script can backup Azure Firewall rules if classic Firewall rules are used to manage the firewall. 
 	This is a PowerShell runbook.
 
 ## PARAMETERS
@@ -31,4 +32,4 @@
 ## NOTES
 ### AUTHOR: Francesco Molfese
 ### MORE INFO: https://francescomolfese.it/en/2019/08/azure-firewall-automazione-per-gestirne-il-backup/
-### LASTEDIT: Jul 10, 2019 
+### LASTEDIT: Sep 09, 2021
